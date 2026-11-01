@@ -1,116 +1,127 @@
-```javascript
-const questions = [
-    {
-        question: "Which language creates the structure of a website?",
-        answers: ["Python", "HTML", "CSS", "SQL"],
-        correct: 1
-    },
-    {
-        question: "Which language is used to style websites?",
-        answers: ["Java", "Python", "CSS", "C++"],
-        correct: 2
-    },
-    {
-        question: "Which language makes websites interactive?",
-        answers: ["JavaScript", "HTML", "CSS", "SQL"],
-        correct: 0
-    },
-    {
-        question: "Which tag creates a hyperlink in HTML?",
-        answers: ["<p>", "<h1>", "<a>", "<br>"],
-        correct: 2
-    },
-    {
-        question: "Which keyword declares a variable in JavaScript?",
-        answers: ["print", "let", "echo", "select"],
-        correct: 1
-    }
-];
+document.addEventListener("DOMContentLoaded", function () {
+    const questions = [
+        {
+            question: "Which language creates the structure of a website?",
+            answers: ["Python", "HTML", "CSS", "SQL"],
+            correct: 1
+        },
+        {
+            question: "Which language is used to style websites?",
+            answers: ["Java", "Python", "CSS", "C++"],
+            correct: 2
+        },
+        {
+            question: "Which language makes websites interactive?",
+            answers: ["JavaScript", "HTML", "CSS", "SQL"],
+            correct: 0
+        },
+        {
+            question: "Which HTML tag creates a hyperlink?",
+            answers: ["<p>", "<h1>", "<a>", "<br>"],
+            correct: 2
+        },
+        {
+            question: "Which keyword declares a variable in JavaScript?",
+            answers: ["print", "let", "echo", "select"],
+            correct: 1
+        }
+    ];
 
-let current = 0;
-let score = 0;
-let answered = false;
+    let current = 0;
+    let score = 0;
+    let answered = false;
 
-const questionElement = document.getElementById("question");
-const answersElement = document.getElementById("answers");
-const progressElement = document.getElementById("progress");
-const nextButton = document.getElementById("next");
+    const questionElement = document.getElementById("question");
+    const answersElement = document.getElementById("answers");
+    const progressElement = document.getElementById("progress");
+    const nextButton = document.getElementById("next");
+    const feedbackElement = document.getElementById("feedback");
+    const quizElement = document.getElementById("quiz");
+    const resultElement = document.getElementById("result");
+    const scoreElement = document.getElementById("score");
+    const restartButton = document.getElementById("restart");
 
-function showQuestion() {
-    answered = false;
+    function showQuestion() {
+        answered = false;
 
-    const q = questions[current];
-    questionElement.textContent = q.question;
-    progressElement.textContent =
-        `Question ${current + 1} of ${questions.length}`;
+        const q = questions[current];
 
-    answersElement.replaceChildren();
+        questionElement.textContent = q.question;
+        progressElement.textContent =
+            `Question ${current + 1} of ${questions.length}`;
 
-    q.answers.forEach((answer, index) => {
-        const button = document.createElement("button");
-        button.textContent = answer;
-        button.className = "answer";
+        answersElement.replaceChildren();
+        feedbackElement.textContent = "";
+        nextButton.disabled = true;
 
-        button.addEventListener("click", () => {
-            if (answered) return;
+        nextButton.textContent =
+            current === questions.length - 1
+                ? "See Results"
+                : "Next Question";
 
-            answered = true;
+        q.answers.forEach(function (answer, index) {
+            const button = document.createElement("button");
 
-            const buttons = answersElement.querySelectorAll("button");
+            button.type = "button";
+            button.textContent = answer;
+            button.className = "answer";
 
-            buttons.forEach((b, i) => {
-                b.disabled = true;
+            button.addEventListener("click", function () {
+                if (answered) return;
 
-                if (i === q.correct) {
-                    b.classList.add("correct");
+                answered = true;
+
+                const buttons = answersElement.querySelectorAll("button");
+
+                buttons.forEach(function (b, i) {
+                    b.disabled = true;
+
+                    if (i === q.correct) {
+                        b.classList.add("correct");
+                    }
+                });
+
+                if (index === q.correct) {
+                    score++;
+                    feedbackElement.textContent = "Correct answer!";
+                } else {
+                    button.classList.add("wrong");
+                    feedbackElement.textContent =
+                        "Incorrect. The correct answer is " +
+                        q.answers[q.correct] + ".";
                 }
+
+                nextButton.disabled = false;
             });
 
-            if (index !== q.correct) {
-                button.classList.add("wrong");
-            } else {
-                score++;
-            }
-
-            nextButton.disabled = false;
+            answersElement.appendChild(button);
         });
+    }
 
-        answersElement.appendChild(button);
+    nextButton.addEventListener("click", function () {
+        if (!answered) return;
+
+        if (current < questions.length - 1) {
+            current++;
+            showQuestion();
+        } else {
+            quizElement.hidden = true;
+            resultElement.hidden = false;
+
+            scoreElement.textContent =
+                `Your score: ${score} out of ${questions.length}`;
+        }
     });
 
-    nextButton.textContent =
-        current === questions.length - 1
-            ? "See Results"
-            : "Next Question";
+    restartButton.addEventListener("click", function () {
+        current = 0;
+        score = 0;
 
-    nextButton.disabled = true;
-}
+        quizElement.hidden = false;
+        resultElement.hidden = true;
 
-nextButton.addEventListener("click", () => {
-    if (!answered) return;
-
-    current++;
-
-    if (current < questions.length) {
         showQuestion();
-    } else {
-        document.getElementById("quiz").hidden = true;
-        document.getElementById("result").hidden = false;
-
-        document.getElementById("score").textContent =
-            `Your score: ${score} out of ${questions.length}`;
-    }
-});
-
-document.getElementById("restart").addEventListener("click", () => {
-    current = 0;
-    score = 0;
-
-    document.getElementById("result").hidden = true;
-    document.getElementById("quiz").hidden = false;
+    });
 
     showQuestion();
 });
-
-showQuestion();
-```
